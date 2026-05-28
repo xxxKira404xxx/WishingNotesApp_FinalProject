@@ -26,7 +26,7 @@ from deleteWish import deleteWish
 from updateWish import updateWish
 from fileHandler import saveWishes, loadWishes
 
-def clear_screen():
+def clearScreen():
     """Uses os.system and os.name to clear the terminal."""
     # Clear console based on operating system
     os.system('cls' if os.name == 'nt' else 'clear')
@@ -34,7 +34,7 @@ def clear_screen():
 def main(): 
     """Main application loop - handles user menu choices."""
     # Load wishes, display menu, and route user input to appropriate functions
-    clear_screen()
+    clearScreen()
     wishes = loadWishes()  # Load existing wishes from file
 
     while True:
@@ -43,15 +43,27 @@ def main():
         
         # Route user choice to appropriate function
         if choice == "1": 
-            addWish(wishes)    
+            addWish(wishes) # Access addWish function to add new wishes to the list
         elif choice == "2": 
-            viewWishes(wishes)  
+            viewWishes(wishes, setBudgetCheck=False)  # Access viewWishes function to display all wishes in a formatted table
+            
+            if wishes:
+                while True:
+                    runCheck = input("  Run a budget check? (y/n): ").strip().upper() # Ask user if they want to run budget check after viewing wishes
+                    if runCheck == 'Y':
+                        viewWishes(wishes, setBudgetCheck=True) # Run viewWishes again with budget check enabled to allow user to input budget and see affordable items
+                        break
+                    elif runCheck == 'N':
+                        break
+                    else:
+                        print("  Invalid input. Please enter 'Y', 'N'.")
+
         elif choice == "3":
-            updateWish(wishes)
+            updateWish(wishes) # Access updateWish function to update existing wishes in the list
         elif choice == "4": 
-            deleteWish(wishes) 
+            deleteWish(wishes) # Access deleteWish function to delete wishes from the list
         elif choice == "5": 
-            saveWishes(wishes)  # Save and exit
+            saveWishes(wishes) # Save wishes to file before exiting
             break         
         else:
             print("Invalid option. Choose 1 - 5.")
