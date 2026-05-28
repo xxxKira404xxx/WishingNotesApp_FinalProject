@@ -1,4 +1,4 @@
-def get_item_name():
+def getItemName():
     """Gets and validates item name input (alphanumeric only)."""
     # Validate that name is not empty and contains only alphanumeric characters
     while True:
@@ -10,8 +10,9 @@ def get_item_name():
             print("Invalid characters in item name.")
             continue
         return rawName.title()
+    
 
-def get_item_link():
+def getItemLink():
     """Gets and validates item link (must start with http:// or https://)."""
     # Ensure link starts with http or https
     while True:
@@ -21,7 +22,7 @@ def get_item_link():
         else:
             print("(Note: Link must start with http/https)")
 
-def get_item_price():
+def getItemPrice():
     """Gets and validates price input (must be a valid number)."""
     # Check that price is a valid numeric value
     while True:
@@ -31,11 +32,15 @@ def get_item_price():
         else:
             print(f"Invalid price. Expected a number, got '{price}'.")
 
-def get_item_notes():
+def getItemNotes():
     # Ensure notes field is not empty
     """Gets and validates notes/description input (cannot be empty)."""
     while True:
         notes = input("Item Notes (Description/Purpose): ").strip()
-        if notes:
-            return notes.capitalize()
-        print("Notes cannot be empty.")
+        if not notes:
+            print("Notes cannot be empty.")
+            continue
+        elif "|" in notes:
+            print("Notes cannot contain the '|' character.")
+            continue
+        return notes.capitalize()
