@@ -1,8 +1,8 @@
 import random
-from inputUtils import get_item_name, get_item_link, get_item_price, get_item_notes
+from inputUtils import getItemName, getItemLink, getItemPrice, getItemNotes
 
-def suggestCategory(itemName, notes):
-    """Suggests a category based on keywords found in item name and notes."""
+def suggestCategory(itemName, notes, link):
+    """Suggests a category based on keywords found in item name, notes, and link."""
     # Search for matching category keywords in item name and notes
     keywords = [
         ["Personal", ["bag", "wallet", "watch", "clothes", "shoes", "shirt", "belt", "sunglasses", "hat", "socks", "jacket", "pants", "sweater", "coat", "scarf", "gloves", "ring", "necklace", "bracelet", "earrings", "perfume", "cologne"]],
@@ -13,8 +13,8 @@ def suggestCategory(itemName, notes):
         ["Others", []]
     ]
 
-    # Search keywords in item name and notes
-    combined = (itemName + " " + notes).lower()
+    # Search keywords in item name, notes, and link
+    combined = (itemName + " " + notes + " " + link).lower()
     for category, words in keywords:
         for word in words:
             if word in combined:
@@ -22,25 +22,50 @@ def suggestCategory(itemName, notes):
 
     # If no match, ask user to pick category
     categories = [cat[0] for cat in keywords]
-    print("  Categories: " + ", ".join(categories))
+    print("  Categories:")
+    for i, cat in enumerate(categories, 1):
+        print(f"  {i}. {cat}")
     while True:
-        pick = input("  No category detected. Pick one: ").strip().title()
-        if pick in categories:
-            return pick
-        print("  Invalid category.")
+        pick = input("  No category detected. Pick one (1-6): ").strip()
+        if pick.isdigit() and 1 <= int(pick) <= len(categories):
+            return categories[int(pick) - 1]
+        print("  Invalid choice. Please enter a number between 1 and 6.")
 
 def addWish(wishes):
     """Adds a new wish to the wishlist with name, link, price, notes, and auto-detected category."""
     # Get item details from user
     print("\n── Add a Wish ──") 
 
-    itemName = get_item_name()
-    link = get_item_link()
-    price = get_item_price()
-    notes = get_item_notes()
+    while True:
+        itemName = getItemName()
+        
+        # Duplicate check
+        isDuplicate = False
+        for wish in wishes:
+            if wish[0][1].lower() == itemName.lower():
+                print(f"  ! '{itemName}' is already in your wish list.")
+                isDuplicate = True
+                break
+        
+        if not isDuplicate:
+            break
+        
+        while True: # Ask user if they want to try a different name or cancel adding the wish
+            choice = input("  Try a different name? (y/n): ").strip().upper()
+            if  choice == 'Y':
+                break
+            elif choice == 'N':
+                print("Wish not added. (Action Cancelled)")
+                return
+            else:
+                print("  Invalid input. Please enter 'Y' or 'N'.")
+
+    link = getItemLink() # Get item link from user input with validation
+    price = getItemPrice() # Get item price from user input with validation
+    notes = getItemNotes() # Get item notes from user input with validation
 
     # Suggest category and generate unique ID
-    suggested_category = suggestCategory(itemName, notes)
+    suggestedCategory = suggestCategory(itemName, notes, link)
     wish_id = random.randint(1000, 9999) 
 
     # Create wish structure with all details
@@ -50,10 +75,10 @@ def addWish(wishes):
         ["price", price],
         ["notes", notes],
         ["id",    str(wish_id)],
-        ["cat",   suggested_category],
+        ["category",   suggestedCategory],
     ]
 
     # Add to wish list and confirm
     wishes.append(wish)
     print(f"\n✓ \"{itemName}\" (ID: {wish_id}) added to your wish list!")
-    print(f"  Category: {suggested_category} | Price: ₱{price:,.2f}")
+    print(f"  Category: {suggestedCategory} | Price: ₱{price:,.2f}")
