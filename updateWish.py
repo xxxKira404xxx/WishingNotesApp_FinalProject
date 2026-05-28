@@ -1,6 +1,6 @@
 from viewWishes import viewWishes
 from addWish import suggestCategory
-from inputUtils import get_item_name, get_item_link, get_item_price, get_item_notes
+from inputUtils import getItemName, getItemLink, getItemPrice, getItemNotes
 
 def updateWish(wishes):
     """Updates an existing wish with new name, link, price, notes, and category."""
@@ -9,10 +9,19 @@ def updateWish(wishes):
         print("\nNo wishes to update.")
         return
 
-    viewWishes(wishes)
+    viewWishes(wishes) # Display all wishes to let user choose which one to update
 
-    # Get wish index from user
-    while True:
+    while True: # Ask user if they want to update a wish or cancel
+        userConfirmation = input("\nUpdate a wish? (y/n): ").strip().upper()
+        if userConfirmation == 'N' :
+            print("Update cancelled.")
+            return
+        elif userConfirmation == 'Y':
+            break
+        else:
+            print("Invalid input. Please enter 'Y' to update, 'N' to cancel.")
+
+    while True: # Ask user which wish to update by number with validation 
         userInput = input("Enter the number of the wish to update: ").strip()
 
         if userInput.isdigit():
@@ -20,45 +29,46 @@ def updateWish(wishes):
 
             if 0 <= index < len(wishes):
                 wish = wishes[index]
-                print(f"\nEditing: {wish[0][1]}")
+                print(f"\nEditing Item: {wish[0][1]}")
 
-                itemName = get_item_name()
+                while True: # Get new item name with duplicate check against other items in the list
+                    itemName = getItemName()
 
-                # Duplicate check: Must check against OTHER items only
-                for i, w in enumerate(wishes):
-                    if w[0][1].lower() == itemName.lower() and i != index:
-                        while True:
-                            overwriteItem = input(f"'{itemName}' already exists. Overwrite? (y/n): ").strip().lower() 
-                            if overwriteItem == 'y':
-                                wishes.pop(i) 
-                                # if a duplicate item was removed from earlier in the list
-                                if i < index:
-                                    index -= 1
-                                break
-                            elif overwriteItem == 'n':
-                                print("Wish not updated.")
-                                return
-                            else:
-                                print("Invalid input.")
+                    is_duplicate = False
+                    for i, w in enumerate(wishes):
+                        if w[0][1].lower() == itemName.lower() and i != index:
+                            print(f"  ! '{itemName}' is already in your wish list.")
+                            is_duplicate = True
+                            break
+                    
+                    if not is_duplicate:
                         break
+                    
+                    while True: # Ask user if they want to try a different name or cancel the update
+                        retry = input("  Try a different name? (y/n): ").strip().upper()
+                        if retry == 'Y':
+                            break
+                        if retry == 'N':
+                            print("Update cancelled.")
+                            return
 
-                link = get_item_link()
-                price = get_item_price()
-                notes = get_item_notes()
+                link = getItemLink()
+                price = getItemPrice()
+                notes = getItemNotes()
 
                 # Update Category based on new info
-                suggested_category = suggestCategory(itemName, notes)
+                suggestedCategory = suggestCategory(itemName, notes, link)
 
                 # Save all updated values back to the nested list
                 wishes[index][0] = ["name",  itemName]
                 wishes[index][1] = ["link",  link]
                 wishes[index][2] = ["price", price]
                 wishes[index][3] = ["notes", notes]
-                wishes[index][5] = ["cat",   suggested_category]
+                wishes[index][5] = ["category",   suggestedCategory]
 
                 # Confirm update success
-                print(f"\n✓ \"{wish[0][1]}\" updated successfully!")
-                print(f"  Category: {suggested_category} | Price: ₱{price:,.2f}")
+                print(f"\n✓ \"{itemName}\" updated successfully!")
+                print(f"  Category: {suggestedCategory} | Price: ₱{price:,.2f}")
                 return
             
             else:
